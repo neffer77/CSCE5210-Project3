@@ -36,48 +36,65 @@ class node:
 class tree:
     def __init__(self):
         self.root = node("")
-        
-        
+        self.endStateCombos = [[[0,0],[0,3],[0,5]],[[2,0],[2,3],[2,5]],[[4,0],[4,3],[4,5]],[[0,0],[3,0],[5,0]],[[0,2],[3,2],[5,2]],[[0,4],[3,4],[5,4]],[[0,0],[2,2],[5,5]],[0,5],[2,2],[5,0]]]
+        self.board = board()    
+    
     def isEndState(self):
-        
+        value = ["X","O"]
+        for k in range(2):
+            for i in self.endStateCombos:
+                count = 0 
+                for j in range(3):
+                    coords = i[j]
+                    if self.board[coords[0],coords[1]] == value[k]:
+                        count = count +1
+                if count == 3:
+                    return True
+        return False
+    
     def generateNodes(self):
         
 
 class agentFunction:
     def __init__(self):
-        self.currentNode = ""
+        self.currentNode = node("","1")
         self.userInput = userInput()
         self.alphabeta = alphabeta()
         self.tree = tree()
-        self.board = board()
         
     def minimax(self):
-        action = self.getmax()
+        n = self.getmax(self.currentNode)
+        winner = n.value()
+        return winner
         
         
-        
-    def dfs(self):
-        
-    def getmax(self,v):
-        v = [-1,-1]
+    def getmax(self,n):
         if self.tree.isEndState():
-            return v
+            return n
         nodes =  self.tree.generateNodes()
         for n in nodes:
-            getmax(v,getmin(v))
+            getmax(n,getmin(n))
         if v > self.alphabeta.getValue():
-            return v
+            return n
         
-    def getmin(self,v):
+    def getmin(self,n):
         
         if self.tree.isEndState():
-            return v;
+            return state;
         input = self.userInput.getInput()
+        return state
         
         
 
 class alphabeta:
     def __init__(self):
+        self.beta = ""
+    
+    def getValue(self):
+        return self.beta
+    
+    def determineBeta():
+        
         
 
 class userInput:
