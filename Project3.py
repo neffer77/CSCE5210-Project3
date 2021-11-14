@@ -13,6 +13,10 @@ Created on Sun Oct 31 10:34:05 2021
         #recursive tree generation exploring all states
 
 #need user input
+
+#now we need to propogate those values up when a terminal state is reached.
+
+
 import copy
 
 class board:
@@ -104,28 +108,38 @@ class agentFunction:
         self.tree = tree(self.currentNode)
         
     def minimax(self):
-        n = self.getmax(self.currentNode)
-        winner = n.value()
-        return winner
+        depth = 0
+        n = self.getmax(self.currentNode, depth)
+        return n.value
         
         
-    def getmax(self,n):
+        
+    def getmax(self,n, depth):
         if n.isEndState():
             return n
         nodes =  self.tree.generateNodes(n,'X')
         for n in nodes:
-            self.getmax(self.getmin(n))
+           nd = self.getmax(self.getmin(n, depth+1), depth + 1)
+           self.alphabeta.determineAlpha(nd)
+           if self.alphabeta.beta != "inf":
+               if nd.value >= self.alphabeta.beta:
+                   return nd
+        return nd
        # if self.alpha > self.alphabeta.getValue():
         #    return n
         
-    def getmin(self,n):
+    def getmin(self,n, depth):
         
         if n.isEndState():
             return n;
         nodes = self.tree.generateNodes(n,'O')
         for n in nodes:
-            self.getmin(self.getmax(n))
-            
+           nd = self.getmin(self.getmax(n, depth+1), depth +1)
+           self.alphabeta.determineBeta(nd)
+           if self.alphabeta.alpha != "-inf":
+               if nd.value <= self.alphabeta.alpha:
+                   return nd
+        return nd    
         #if self.beta < self.alphabeta.getValue():
          #   return n
         
@@ -145,11 +159,11 @@ class alphabeta:
     def determineBeta(self,n):
         if n.value == -2:
             return
-        if self.alpha == '-inf':
-            self.alpha = n.value
+        if self.beta == 'inf':
+            self.beta = n.value
             
-        elif self.alpha < n.value:
-            self.alpha = n.value
+        elif self.beta > n.value:
+            self.beta = n.value
             return
         else:
             return
@@ -184,7 +198,7 @@ def main():
   brd = board()
   brd.printBoard()
   agtFunc = agentFunction()
-  agtFunc.minimax()
+  aaa = agtFunc.minimax()
    
 if __name__ == "__main__":
     main()
