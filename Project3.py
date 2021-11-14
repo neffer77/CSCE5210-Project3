@@ -44,7 +44,19 @@ class node:
                     if self.board.board[coords[0]][coords[1]] == value[k]:
                         count = count +1
                 if count == 3:
+                    if k== 0:
+                        self.value = 1
+                    elif k == 1:
+                        self.value == -1
                     return True
+        
+        count = 0
+        for i in [[0,0],[0,2],[0,4],[2,0],[2,2],[2,4],[4,0],[4,2],[4,4]]:
+            if self.board.board[i[0]][i[1]] == '':
+                count = count + 1
+        if count == 0:
+            self.value = 0
+            return True
         return False
         
     
@@ -61,7 +73,7 @@ class tree:
             nodes = []
             b = copy.deepcopy(board(n.board.board))
             for i in spots:
-                newNode = copy.deepcopy(node(-1,str(currentState + 1) , b))
+                newNode = copy.deepcopy(node(-2,str(currentState + 1) , b))
                 newNode.board = self.addMove(newNode.board,turn, i)
                 nodes.append(newNode)
                 currentState = currentState + 1
@@ -88,9 +100,7 @@ class agentFunction:
     def __init__(self):
         self.userInput = userInput()
         self.alphabeta = alphabeta()
-        self.currentNode = node(-1,"1",board())
-        self.alpha = "inf"
-        self.beta = "-inf"
+        self.currentNode = node(-2,"1",board())
         self.tree = tree(self.currentNode)
         
     def minimax(self):
@@ -104,7 +114,7 @@ class agentFunction:
             return n
         nodes =  self.tree.generateNodes(n,'X')
         for n in nodes:
-            self.getmax(n,self.getmin(n))
+            self.getmax(self.getmin(n))
        # if self.alpha > self.alphabeta.getValue():
         #    return n
         
@@ -114,7 +124,7 @@ class agentFunction:
             return n;
         nodes = self.tree.generateNodes(n,'O')
         for n in nodes:
-            self.getmin(n,self.getmax(n))
+            self.getmin(self.getmax(n))
             
         #if self.beta < self.alphabeta.getValue():
          #   return n
@@ -123,16 +133,38 @@ class agentFunction:
 
 class alphabeta:
     def __init__(self):
-        self.beta = ""
+        self.beta = "inf"
+        self.alpha = "-inf"
     
-    def getValue(self):
+    def getBetaValue(self):
         return self.beta
     
-    def determineBeta():
-        print("a")
+    def getAlphaValue(self):
+        return self.alpha
+    
+    def determineBeta(self,n):
+        if n.value == -2:
+            return
+        if self.alpha == '-inf':
+            self.alpha = n.value
+            
+        elif self.alpha < n.value:
+            self.alpha = n.value
+            return
+        else:
+            return
         
-    def determineAlpha():
-        print("a")
+    def determineAlpha(self,n):
+        if n.value == -2:
+            return
+        if self.alpha == '-inf':
+            self.alpha = n.value
+            
+        elif self.alpha < n.value:
+            self.alpha = n.value
+            return
+        else:
+            return
         
 
 class userInput:
