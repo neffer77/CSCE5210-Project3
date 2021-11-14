@@ -51,38 +51,39 @@ class node:
     
 
 class tree:
-       def __init__(self,value,name, board):
+       def __init__(self,n):
+           self.root = n
            
            
-       def generateNodes(self, turn):
-        currentState = int(self.name)
-        spots = self.getOpenSpots()
-        nodes = []
-        b = board(self.board.board)
-        for i in spots:
-            n = node(-1,str(currentState + 1) , b)
-            n.board.board = self.addMove(n.board.board,turn, i)
-            
-            nodes.append(n)
-            currentState = currentState + 1
-        return nodes
+       def generateNodes(self, n, turn):
+            currentState = int(n.name)
+            spots = self.getOpenSpots(n)
+            nodes = []
+            b = copy.deepcopy(board(n.board.board))
+            for i in spots:
+                newNode = copy.deepcopy(node(-1,str(currentState + 1) , b))
+                newNode.board = self.addMove(newNode.board,turn, i)
+                nodes.append(newNode)
+                currentState = currentState + 1
+            return nodes
     
-    def getOpenSpots(self):
-        spots = []
-        for i in [0,2,4]:
-            for j in range(5):
-                if (self.board.board[i][j] == ""):
-                    spots.append([i,j])
-        return spots
-     
-    def addMove(self,board,turn, spot):
-        if turn == 'X':
-            board[spot[0]][spot[1]] = 'X'
-        elif turn == 'O':
-            board[spot[0]][spot[1]] = 'O'
-        else:
-            print("Error: addMove")
-        return board
+       def getOpenSpots(self,n):
+            spots = []
+            for i in [0,2,4]:
+                for j in range(5):
+                    if (n.board.board[i][j] == ""):
+                        spots.append([i,j])
+            return spots
+         
+       def addMove(self,board,turn, spot):
+            if turn == 'X':
+                board.board[spot[0]][spot[1]] = 'X'
+            elif turn == 'O':
+                board.board[spot[0]][spot[1]] = 'O'
+            else:
+                print("Error: addMove")
+            return board
+        
 class agentFunction:
     def __init__(self):
         self.userInput = userInput()
@@ -90,6 +91,7 @@ class agentFunction:
         self.currentNode = node(-1,"1",board())
         self.alpha = "inf"
         self.beta = "-inf"
+        self.tree = tree(self.currentNode)
         
     def minimax(self):
         n = self.getmax(self.currentNode)
@@ -100,7 +102,7 @@ class agentFunction:
     def getmax(self,n):
         if n.isEndState():
             return n
-        nodes =  n.generateNodes('X')
+        nodes =  self.tree.generateNodes(n,'X')
         for n in nodes:
             self.getmax(n,self.getmin(n))
        # if self.alpha > self.alphabeta.getValue():
@@ -110,7 +112,7 @@ class agentFunction:
         
         if n.isEndState():
             return n;
-        nodes = n.generateNodes('O')
+        nodes = self.tree.generateNodes(n,'O')
         for n in nodes:
             self.getmin(n,self.getmax(n))
             
