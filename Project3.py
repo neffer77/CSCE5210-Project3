@@ -30,12 +30,24 @@ class board:
             for j in i:
                 print(j, end =" ") 
                 
+    def printUserBoard(self):
+        count = 1
+        for i in self.board:
+            print("")
+            for j in i:
+                if j == "":
+                    print(str(count), end = " ")
+                    count = count +1
+                else:
+                    print( j, end = " ")
+                
 class node:
     def __init__(self,value,name, board):
         self.value = value
         self.name = name
         self.board = board
         self.endStateCombos = [[[0,0],[0,2],[0,4]],[[2,0],[2,2],[2,4]],[[4,0],[4,2],[4,4]],[[0,0],[2,0],[4,0]],[[0,2],[2,2],[4,2]],[[0,4],[2,4],[4,4]],[[0,0],[2,2],[4,4]],[[0,4],[2,2],[4,0]]]
+        self.parent = ""
         
     def isEndState(self):
         value = ["X","O"]
@@ -79,6 +91,7 @@ class tree:
             for i in spots:
                 newNode = copy.deepcopy(node(-2,str(currentState + 1) , b))
                 newNode.board = self.addMove(newNode.board,turn, i)
+                newNode.parent = n
                 nodes.append(newNode)
                 currentState = currentState + 1
             return nodes
@@ -110,7 +123,7 @@ class agentFunction:
     def minimax(self):
         depth = 0
         n = self.getmax(self.currentNode, depth)
-        return n.value
+        return n
         
         
         
@@ -139,7 +152,7 @@ class agentFunction:
            if self.alphabeta.alpha != "-inf":
                if nd.value <= self.alphabeta.alpha:
                    return nd
-        return nd    
+        return nd 
         #if self.beta < self.alphabeta.getValue():
          #   return n
         
@@ -185,9 +198,27 @@ class userInput:
     def __init__(self):
         self.input = ""
         
-    def getInput(self):
+    def getInput(self, n):
+        n.board.printUserBoard()
         self.input = input("Select Input Number: ")
-        return self.getInput()
+        return self.input
+    
+    def makeMove(self,inpt,n):
+        b = self.makeBoard(copy.deepcopy(n.board.board))
+        for i in [0,2,4]:
+            for j in [0,2,4]:
+                if b[i][j] == inpt:
+                    n.board.board[i][j] = 'O'
+        return n
+    
+    def makeBoard(self, board):
+        count = 1
+        for i in [0,2,4]:
+            for j in [0,2,4]:
+                if board[i][j] == "":
+                    board[i][j] = count
+                    count = count + 1
+        return board
         
 class action:
     def __init__(self):
@@ -198,7 +229,23 @@ def main():
   brd = board()
   brd.printBoard()
   agtFunc = agentFunction()
-  aaa = agtFunc.minimax()
-   
+  winner = False
+  player2 = userInput()
+  turns = 7
+  while not winner:
+      player1 = agtFunc.minimax()
+      player1Move = player1.parent
+      for i in range(turns):
+          player1Move = player1Move.parent
+      player1Move.board.printBoard()
+      turns = turns - 2
+      i = player2.getInput(player1Move)
+      player2Move = player2.makeMove(int(i),copy.deepcopy(player1Move))
+      player2Move.board.printBoard()
+      agtFunc.currentNode = copy.deepcopy(player2Move)
+  
+  
+  
+  
 if __name__ == "__main__":
     main()
