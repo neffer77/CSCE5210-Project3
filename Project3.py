@@ -232,16 +232,24 @@ def main():
   winner = False
   player2 = userInput()
   turns = 7
+  sub = 4
   while not winner:
       player1 = agtFunc.minimax()
       player1Move = player1.parent
       for i in range(turns):
           player1Move = player1Move.parent
       player1Move.board.printBoard()
-      turns = turns - 2
+      if (player1Move.isEndState()):
+          winner = True
+          break
+      turns = turns - sub
+      sub = sub /4
       i = player2.getInput(player1Move)
       player2Move = player2.makeMove(int(i),copy.deepcopy(player1Move))
       player2Move.board.printBoard()
+      if (player2Move.isEndState()):
+          winner = True
+          break
       agtFunc.currentNode = copy.deepcopy(player2Move)
   
   
