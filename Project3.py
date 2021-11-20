@@ -40,6 +40,15 @@ class board:
                     count = count +1
                 else:
                     print( j, end = " ")
+                    
+    def moveCount(self):
+        count = 0
+        for i in self.board:
+            for j in i:
+                if j == "X" or j == "O":
+                    count = count + 1
+        return count
+    
                 
 class node:
     def __init__(self,value,name, board):
@@ -170,11 +179,13 @@ class alphabeta:
         return self.alpha
     
     def determineBeta(self,n):
+        
+        n.isEndState()
         if n.value == -2:
             return
         if self.beta == 'inf':
             self.beta = n.value
-            
+            return
         elif self.beta > n.value:
             self.beta = n.value
             return
@@ -182,11 +193,12 @@ class alphabeta:
             return
         
     def determineAlpha(self,n):
+        n.isEndState()
         if n.value == -2:
             return
         if self.alpha == '-inf':
             self.alpha = n.value
-            
+            return
         elif self.alpha < n.value:
             self.alpha = n.value
             return
@@ -228,29 +240,41 @@ class action:
 def main():
   brd = board()
   brd.printBoard()
+  print("")
   agtFunc = agentFunction()
   winner = False
   player2 = userInput()
-  turns = 7
-  sub = 4
+  turns = 1
+  move = False
   while not winner:
       player1 = agtFunc.minimax()
-      player1Move = player1.parent
-      for i in range(turns):
-          player1Move = player1Move.parent
+      player1Move = player1
+      while not move:
+          if player1Move.board.moveCount() == turns:
+              move = True
+          else:
+              player1Move = player1Move.parent
+      move = False
+      print("")
+      print("Player 1 Move:")
       player1Move.board.printBoard()
+      print("")
       if (player1Move.isEndState()):
           winner = True
-          break
-      turns = turns - sub
-      sub = sub /4
+          return
+      turns = turns + 2
       i = player2.getInput(player1Move)
       player2Move = player2.makeMove(int(i),copy.deepcopy(player1Move))
+      print("")
+      print("Player 2 Move:")
       player2Move.board.printBoard()
+      print("")
       if (player2Move.isEndState()):
           winner = True
-          break
+          return
       agtFunc.currentNode = copy.deepcopy(player2Move)
+      agtFunc.alphabeta.alpha = "-inf"
+      agtFunc.alphabeta.beta = "inf"
   
   
   
