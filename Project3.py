@@ -57,6 +57,7 @@ class node:
         self.board = board
         self.endStateCombos = [[[0,0],[0,2],[0,4]],[[2,0],[2,2],[2,4]],[[4,0],[4,2],[4,4]],[[0,0],[2,0],[4,0]],[[0,2],[2,2],[4,2]],[[0,4],[2,4],[4,4]],[[0,0],[2,2],[4,4]],[[0,4],[2,2],[4,0]]]
         self.parent = ""
+        self.alphabeta = alphabeta()
         
     def isEndState(self):
         value = ["X","O"]
@@ -72,7 +73,7 @@ class node:
                     if k== 0:
                         self.value = 1
                     elif k == 1:
-                        self.value == -1
+                        self.value = -1
                     return True
         
         count = 0
@@ -125,46 +126,81 @@ class tree:
 class agentFunction:
     def __init__(self):
         self.userInput = userInput()
-        self.alphabeta = alphabeta()
         self.currentNode = node(-2,"1",board())
         self.tree = tree(self.currentNode)
         
     def minimax(self):
         depth = 0
-        n = self.getmax(self.currentNode, depth)
+        n = self.getmax(self.currentNode,0, depth)
         return n
         
         
         
-    def getmax(self,n, depth):
+    def getmax(self,n,mvalue, depth):
+        maxlist = []
+        highval = -1
         if n.isEndState():
-            return n
+            return n.value
         nodes =  self.tree.generateNodes(n,'X')
-        for n in nodes:
-           nd = self.getmax(self.getmin(n, depth+1), depth + 1)
-           self.alphabeta.determineAlpha(nd)
-           if self.alphabeta.beta != "inf":
-               if nd.value >= self.alphabeta.beta:
-                   return nd
-        return nd
-       # if self.alpha > self.alphabeta.getValue():
-        #    return n
+        for q in nodes:
+           
+           q.alphabeta.alpha = n.alphabeta.alpha
+           q.alphabeta.beta = n.alphabeta.beta
+           if n.alphabeta.beta != "inf":
+               if n.alphabeta.alpha != "-inf":
+                   if n.alphabeta.alpha >= n.alphabeta.beta:
+                       highval = n.alphabeta.alpha
+                       return highval
+           mvalue = self.getmin(q, mvalue, depth+1)
+           maxlist.append(mvalue)
+           n.alphabeta.determineAlpha(mvalue)
+           
+        for i in maxlist:
+            if i > highval:
+                highval = i
+    
+        n.value = highval
+        if depth == 0:
+            for i in nodes:
+                if i.value == highval:
+                    return i
+            
+           #self.alphabeta.determineAlpha(nd)
+           
+           #if self.alphabeta.beta != "inf":
+            #   if nd.value >= self.alphabeta.beta:
+             #      mvalue = nd.value
+              #     return nd,mvalue
+        return n.value
         
-    def getmin(self,n, depth):
-        
+    def getmin(self,n, mvalue, depth):
+        minlist = []
+        lowval = 1
         if n.isEndState():
-            return n;
+            return n.value;
         nodes = self.tree.generateNodes(n,'O')
-        for n in nodes:
-           nd = self.getmin(self.getmax(n, depth+1), depth +1)
-           self.alphabeta.determineBeta(nd)
-           if self.alphabeta.alpha != "-inf":
-               if nd.value <= self.alphabeta.alpha:
-                   return nd
-        return nd 
-        #if self.beta < self.alphabeta.getValue():
-         #   return n
-        
+        for q in nodes:
+           q.alphabeta.alpha = n.alphabeta.alpha
+           q.alphabeta.beta = n.alphabeta.beta
+           if n.alphabeta.alpha != "-inf":
+               if n.alphabeta.beta != "inf":
+                   if n.alphabeta.alpha >= n.alphabeta.beta:
+                       highval = n.alphabeta.alpha
+                       return highval
+           mvalue = self.getmax(q, mvalue, depth+1)
+           minlist.append(mvalue)
+           n.alphabeta.determineBeta(mvalue)
+        for i in minlist:
+            if i < lowval:
+                lowval = i
+                
+        n.value = lowval          
+           #self.alphabeta.determineBeta(minlist)
+           #if self.alphabeta.alpha != "-inf":
+            #   if nd.value <= self.alphabeta.alpha:
+             #      mvalue = nd.value
+              #     return nd, mvalue
+        return n.value
         
 
 class alphabeta:
@@ -178,32 +214,25 @@ class alphabeta:
     def getAlphaValue(self):
         return self.alpha
     
-    def determineBeta(self,n):
-        
-        n.isEndState()
-        if n.value == -2:
-            return
+    def determineBeta(self,mvalue):
         if self.beta == 'inf':
-            self.beta = n.value
+            self.beta = mvalue
             return
-        elif self.beta > n.value:
-            self.beta = n.value
+        elif self.beta > mvalue:
+            self.beta = mvalue
             return
         else:
             return
         
-    def determineAlpha(self,n):
-        n.isEndState()
-        if n.value == -2:
-            return
+    def determineAlpha(self,mvalue):
         if self.alpha == '-inf':
-            self.alpha = n.value
+            self.alpha = mvalue
             return
-        elif self.alpha < n.value:
-            self.alpha = n.value
-            return
+        elif self.alpha < mvalue:
+           self.alpha = mvalue
+           return
         else:
-            return
+           return
         
 
 class userInput:
@@ -273,8 +302,8 @@ def main():
           winner = True
           return
       agtFunc.currentNode = copy.deepcopy(player2Move)
-      agtFunc.alphabeta.alpha = "-inf"
-      agtFunc.alphabeta.beta = "inf"
+      agtFunc.currentNode.alphabeta.alpha = "-inf"
+      agtFunc.currentNode.alphabeta.beta = "inf"
   
   
   
